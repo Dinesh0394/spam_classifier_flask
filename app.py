@@ -24,5 +24,19 @@ def predict():
     prediction = "Spam" if prediction_label[0] == 1 else "Not Spam"
     return render_template('home.html', text=text, prediction=prediction)
 
+@aap.route('/api/predict', methods=['POST'])
+def api_predict():
+    data = request.get_json(force=True)
+    text = data.get('email')
+
+    if not text:
+        return {'error': 'Please provide an email text.'}, 400
+
+    tokenized_text = tokenizer.transform([text])
+    prediction_label = model.predict(tokenized_text)
+
+    prediction = "Spam" if prediction_label[0] == 1 else "Not Spam"
+    return {'prediction': prediction}, 200
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

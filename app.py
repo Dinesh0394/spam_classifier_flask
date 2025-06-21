@@ -1,9 +1,28 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, render_template
+import pickle
+
+# Load tokenizer (vectorizer) and model
+tokenizer = pickle.load(open('D:\Dibu\Course_Notes\Flask\Spam_classifier_model_deployment\model\cv.pkl', 'rb'))
+model = pickle.load(open('D:\Dibu\Course_Notes\Flask\Spam_classifier_model_deployment\model\clf.pkl', 'rb'))
+
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.route('/', methods=['GET'])
+def home():
+    return render_template('home.html', text=None, result=None)
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    text = request.form.get('email')
+
+    if not text:
+        return render_template('home.html', text='', prediction='Please enter some text.')
+
+    tokenized_text = tokenizer.transform([text])
+    prediction_label = model.predict(tokenized_text)
+
+    prediction = "Spam" if prediction_label[0] == 1 else "Not Spam"
+    return render_template('home.html', text=text, prediction=prediction)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

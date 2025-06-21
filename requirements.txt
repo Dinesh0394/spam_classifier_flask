@@ -5,3 +5,5 @@ flask
 gunicorn
 requests
 render
+flask-cors
+flask-socketio

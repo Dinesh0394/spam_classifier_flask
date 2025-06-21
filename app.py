@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 import pickle
 
 # Load tokenizer (vectorizer) and model
@@ -24,7 +24,7 @@ def predict():
     prediction = "Spam" if prediction_label[0] == 1 else "Not Spam"
     return render_template('home.html', text=text, prediction=prediction)
 
-@aap.route('/api/predict', methods=['POST'])
+@app.route('/api/predict', methods=['POST'])
 def api_predict():
     data = request.get_json(force=True)
     text = data.get('email')
@@ -36,7 +36,7 @@ def api_predict():
     prediction_label = model.predict(tokenized_text)
 
     prediction = "Spam" if prediction_label[0] == 1 else "Not Spam"
-    return {'prediction': prediction}, 200
+    return jsonify({'prediction': prediction})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
